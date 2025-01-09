@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, Modal, StyleSheet, TouchableOpacity,ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import {Fields} from '../assets/Files.js';
+
 
 const HomeScreen = ({ navigation }) => {
 
@@ -16,6 +18,7 @@ const HomeScreen = ({ navigation }) => {
         const[tradingPartner,setTradingPartner]=useState('');
         const[baseUnitCode,setBaseUnitCode]=useState('');
         const [modalVisible, setModalVisible] = useState(false);
+        const [dropdownValues, setDropdownValues] = useState(Fields.map(() => ""));
 
         const isFormValid = () => {
             return (
@@ -34,6 +37,11 @@ const HomeScreen = ({ navigation }) => {
         };
 
 
+        const handleDropdownChange = (index, value) => {
+            const updatedValues = [...dropdownValues];
+            updatedValues[index] = value;
+            setDropdownValues(updatedValues);
+          };
 
         const handleSubmit = () => {
             const allValues = [itemName, postingDate, quantity, assetValue, businessTransactionType,companyCode,assetType,businessUnit,currency,tradingPartner,baseUnitCode];
@@ -63,6 +71,7 @@ return (
                              placeholder="Enter Item Name"
                              value={itemName}
                              onChangeText={setItemName}
+                             placeholderTextColor="black"
                          />
 
                          <Text style={styles.label}>Posting Date</Text>
@@ -71,6 +80,7 @@ return (
                              placeholder="Enter Posting Date"
                              value={postingDate}
                              onChangeText={setPostingDate}
+                             placeholderTextColor="black"
                          />
 
                          <Text style={styles.label}>Quantity</Text>
@@ -80,6 +90,7 @@ return (
                              value={quantity}
                              onChangeText={setQuantity}
                              keyboardType="numeric"
+                             placeholderTextColor="black"
                          />
 
                          <Text style={styles.label}>Asset Value</Text>
@@ -89,68 +100,51 @@ return (
                              value={assetValue}
                              onChangeText={setAssetValue}
                              keyboardType="numeric"
+                             placeholderTextColor="black"
                          />
-                         <Text style={styles.label}>Business Transaction Type</Text>
-                         <TextInput
-                              style={styles.input}
-                              placeholder="Enter Business Transaction Type"
-                              value={businessTransactionType}
-                              onChangeText={setBusinessTransactionType}
-                              keyboardType="numeric"
-                         />
-                         <Text style={styles.label}>Company Code</Text>
-                         <TextInput
-                            style={styles.input}
-                            placeholder="Enter Company Code"
-                            value={companyCode}
-                            onChangeText={setCompanyCode}
-                            keyboardType="numeric"
-                         />
-                         <Text style={styles.label}>Asset Type</Text>
-                         <TextInput
-                             style={styles.input}
-                             placeholder="Enter Asset Type"
-                             value={assetType}
-                             onChangeText={setAssetType}
-                             keyboardType="numeric"
-                         />
-
-                         <Text style={styles.label}>Business Unit</Text>
-                         <TextInput
-                             style={styles.input}
-                             placeholder="Enter Business Unit"
-                             value={businessUnit}
-                             onChangeText={setBusinessUnit}
-                             keyboardType="numeric"
-                         />
-
-                         <Text style={styles.label}>Currency</Text>
-                         <TextInput
-                             style={styles.input}
-                             placeholder="Enter Currency"
-                             value={currency}
-                             onChangeText={setCurrency}
-                             keyboardType="numeric"
-                         />
-
-                         <Text style={styles.label}>Trading Partner</Text>
-                         <TextInput
-                             style={styles.input}
-                             placeholder="Enter Trading Partner"
-                             value={tradingPartner}
-                             onChangeText={setTradingPartner}
-                             keyboardType="numeric"
-                         />
-
-                         <Text style={styles.label}>Base Unit Code</Text>
-                         <TextInput
-                              style={styles.input}
-                              placeholder="Enter Base Unit Code"
-                              value={baseUnitCode}
-                              onChangeText={setBaseUnitCode}
-                              keyboardType="numeric"
-                         />
-
+                        {Fields.map((field, index) => {
+                                if (index % 2 === 0) {
+                                  return (
+                                    <View style={styles.row} key={index}>
+                                      <Text style={styles.label}>
+                                        {field.fieldItems}
+                                      </Text>
+                                      <View style={styles.inputContainer}>
+                                        <Picker
+                                          selectedValue={dropdownValues[index]}
+                                          onValueChange={(value) => handleDropdownChange(index, value)}
+                                          style={styles.picker}
+                                        >
+                                          <Picker.Item label="Select an option" value="" />
+                                          {field.dropdown.map((option, subIndex) => (
+                                            <Picker.Item key={subIndex} label={option.fieldItems.toString()} value={option.fieldItems} />
+                                          ))}
+                                        </Picker>
+                                      </View>
+                                      {index + 1 < Fields.length && (
+                                        <>
+                                          <Text style={styles.label}>
+                                            {Fields[index + 1].fieldItems}
+                                          </Text>
+                                          <View style={styles.inputContainer}>
+                                            <Picker
+                                              selectedValue={dropdownValues[index + 1]}
+                                              onValueChange={(value) => handleDropdownChange(index + 1, value)}
+                                              style={styles.picker}
+                                            >
+                                              <Picker.Item label="Select an option" value="" />
+                                              {Fields[index + 1].dropdown.map((option, subIndex) => (
+                                                <Picker.Item key={subIndex} label={option.fieldItems.toString()} value={option.fieldItems} />
+                                              ))}
+                                            </Picker>
+                                          </View>
+                                        </>
+                                      )}
+                                    </View>
+                                  );
+                                }
+                                return null;
+                              })}
                          <Button title="Submit" onPress={handleSubmit} disabled={!isFormValid()} />
                      </View>
                  </ScrollView>
@@ -165,13 +159,13 @@ const styles = StyleSheet.create({
         buttonText: { color: '#000' },
         formContainer: { marginTop: 20 },
         label: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 , color:"black"},
-        input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5,color:"black" },
-        dropdownContainer: { marginBottom: 15 },
-        picker: { height: 50, width: '100%' },
+        input: { borderWidth: 1,fontSize:15, borderColor: '#ccc', paddingLeft: 10, marginBottom: 15, borderRadius: 5,color:"black" },
         modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
         modalContent: { width: 300, padding: 20, backgroundColor: '#fff', borderRadius: 5, alignItems: 'center' },
         successIcon: { color: 'green', fontSize: 40, marginBottom: 10 },
         successText: { fontSize: 20, fontWeight: 'bold' },
-        modalButtons: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 20, width: '100%' }
+        modalButtons: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 20, width: '100%' },
+        inputContainer: {width: '100%',borderWidth: 1, borderColor: '#ccc', marginBottom: 15, borderRadius: 5},
+        picker: {color:"black"},
 });
 export default HomeScreen;
